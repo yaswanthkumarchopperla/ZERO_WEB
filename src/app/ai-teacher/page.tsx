@@ -1,15 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { 
-  Bot, 
-  Sparkles, 
-  Send, 
-  Languages, 
-  Image as ImageIcon, 
-  Terminal, 
-  Copy, 
-  Check, 
+import {
+  Bot,
+  Sparkles,
+  Send,
+  Languages,
+  Image as ImageIcon,
+  Terminal,
+  Copy,
+  Check,
   RotateCcw,
   BookOpen
 } from "lucide-react";
@@ -95,7 +95,7 @@ export default function AITeacherPage() {
   return (
     <div className="py-10 lg:py-16">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto space-y-3 mb-8">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-semibold uppercase tracking-wider">
@@ -106,14 +106,14 @@ export default function AITeacherPage() {
             Zero-Web AI Teacher
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
-            Your personal full-stack tutor. Ask questions about any module, get line-by-line code explanations, 
+            Your personal full-stack tutor. Ask questions about any module, get line-by-line code explanations,
             or switch to Telugu for intuitive regional analogies.
           </p>
         </div>
 
         {/* Chat Container */}
         <div className="rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col h-[680px]">
-          
+
           {/* Top Chat Bar */}
           <div className="px-6 py-4 bg-slate-50 dark:bg-slate-950/80 border-b border-slate-200 dark:border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -135,21 +135,19 @@ export default function AITeacherPage() {
             <div className="flex items-center gap-1.5 bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl text-xs font-semibold">
               <button
                 onClick={() => setSelectedLanguage("en")}
-                className={`px-3 py-1 rounded-lg transition-all ${
-                  selectedLanguage === "en"
+                className={`px-3 py-1 rounded-lg transition-all ${selectedLanguage === "en"
                     ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-white shadow-sm"
                     : "text-slate-600 dark:text-slate-400"
-                }`}
+                  }`}
               >
                 English
               </button>
               <button
                 onClick={() => setSelectedLanguage("te")}
-                className={`px-3 py-1 rounded-lg transition-all flex items-center gap-1 ${
-                  selectedLanguage === "te"
+                className={`px-3 py-1 rounded-lg transition-all flex items-center gap-1 ${selectedLanguage === "te"
                     ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-white shadow-sm"
                     : "text-slate-600 dark:text-slate-400"
-                }`}
+                  }`}
               >
                 <Languages className="w-3.5 h-3.5" />
                 తెలుగు
@@ -162,9 +160,8 @@ export default function AITeacherPage() {
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex items-start gap-3 ${
-                  msg.sender === "user" ? "justify-end" : "justify-start"
-                }`}
+                className={`flex items-start gap-3 ${msg.sender === "user" ? "justify-end" : "justify-start"
+                  }`}
               >
                 {msg.sender === "ai" && (
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-white flex-shrink-0 text-xs shadow-sm">
@@ -173,11 +170,10 @@ export default function AITeacherPage() {
                 )}
 
                 <div
-                  className={`rounded-2xl px-5 py-4 text-sm leading-relaxed max-w-2xl space-y-3 ${
-                    msg.sender === "user"
+                  className={`rounded-2xl px-5 py-4 text-sm leading-relaxed max-w-2xl space-y-3 ${msg.sender === "user"
                       ? "bg-indigo-600 text-white rounded-tr-sm shadow-sm"
                       : "bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-white/5 text-slate-800 dark:text-slate-200 rounded-tl-sm"
-                  }`}
+                    }`}
                 >
                   <p className="whitespace-pre-line">{msg.text}</p>
 
@@ -260,3 +256,4 @@ export default function AITeacherPage() {
     </div>
   );
 }
+
