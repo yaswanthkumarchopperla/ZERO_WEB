@@ -25,7 +25,10 @@ import {
   MapPin,
   Clock,
   ArrowRight,
-  ListFilter
+  ListFilter,
+  Sliders,
+  FileCode,
+  Info
 } from "lucide-react";
 import { 
   CHRONOLOGICAL_STEPS, 
@@ -33,6 +36,14 @@ import {
   ChronologicalStep, 
   PhaseInfo 
 } from "@/lib/chronological-journey-data";
+import { 
+  UserRequirements, 
+  ArchitectureRecommendation, 
+  DEFAULT_REQUIREMENTS, 
+  loadUserRequirements, 
+  analyzeRequirements 
+} from "@/lib/user-requirements";
+import { RequirementsWizard } from "@/components/journey/RequirementsWizard";
 import { copyToClipboard, cn } from "@/lib/utils";
 
 const ICONS_MAP: Record<string, React.ElementType> = {
@@ -49,14 +60,33 @@ const ICONS_MAP: Record<string, React.ElementType> = {
 };
 
 export default function JourneyPage() {
+  const [activeTab, setActiveTab] = useState<"journey" | "requirements">("journey");
+  const [userReq, setUserReq] = useState<UserRequirements>(DEFAULT_REQUIREMENTS);
+  const [userRec, setUserRec] = useState<ArchitectureRecommendation>(
+    analyzeRequirements(DEFAULT_REQUIREMENTS)
+  );
+
   const [currentStepNumber, setCurrentStepNumber] = useState<number>(1);
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
   const [stepNotes, setStepNotes] = useState<Record<number, string>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"step-focus" | "phase-overview">("step-focus");
 
-  // Load progress from localStorage on mount (Resume capability)
+  // Load progress and user requirements on mount
   useEffect(() => {
+    // Check URL parameters for tab
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get("tab");
+      if (tabParam === "requirements" || tabParam === "wizard") {
+        setActiveTab("requirements");
+      }
+    }
+
+    const loadedReq = loadUserRequirements();
+    setUserReq(loadedReq);
+    setUserRec(analyzeRequirements(loadedReq));
+
     const savedStep = localStorage.getItem("zero_web_current_step");
     if (savedStep) {
       const parsed = parseInt(savedStep, 10);
@@ -75,6 +105,13 @@ export default function JourneyPage() {
       try { setStepNotes(JSON.parse(savedNotes)); } catch (e) {}
     }
   }, []);
+
+  const handleRequirementsSaved = (req: UserRequirements, rec: ArchitectureRecommendation) => {
+    setUserReq(req);
+    setUserRec(rec);
+    setActiveTab("journey");
+    window.scrollTo({ top: 100, behavior: "smooth" });
+  };
 
   const goToStep = (stepNum: number) => {
     const valid = Math.max(1, Math.min(CHRONOLOGICAL_STEPS.length, stepNum));
@@ -124,90 +161,194 @@ export default function JourneyPage() {
 
   const PhaseIcon = ICONS_MAP[currentPhase.iconName] || Rocket;
 
+  const isCurrentPhaseSkipped = userRec.skippedPhases.some(
+    (sp) => sp.phaseNumber === currentStep.phaseNumber
+  );
+  const currentPhaseSkippedReason = userRec.skippedPhases.find(
+    (sp) => sp.phaseNumber === currentStep.phaseNumber
+  )?.reason;
+
   return (
     <div className="py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
-        {/* Header: Dedicated Banner */}
-        <div className="p-6 sm:p-8 rounded-3xl bg-navy-900/90 border border-white/10 space-y-4 shadow-2xl relative overflow-hidden">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-electric-blue/15 border border-electric-blue/30 text-xs font-semibold text-electric-blue">
-                <Rocket className="w-3.5 h-3.5" />
-                <span>The Real Chronological Order &bull; 10 Phases &bull; Click-by-Click</span>
+        {/* Top-Level Mode Navigation Tabs */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-2 rounded-2xl bg-navy-900/90 border border-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab("requirements")}
+              className={cn(
+                "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all",
+                activeTab === "requirements"
+                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25 border border-purple-400/40"
+                  : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
+              )}
+            >
+              <Sliders className="w-4 h-4 text-purple-300" />
+              <span>Phase A: Requirements & Architecture</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/15 font-mono">
+                17 Inputs
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("journey")}
+              className={cn(
+                "flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all",
+                activeTab === "journey"
+                  ? "bg-gradient-to-r from-electric-blue to-blue-600 text-white shadow-lg shadow-blue-500/25 border border-blue-400/40"
+                  : "text-slate-300 hover:text-white hover:bg-white/5 border border-transparent"
+              )}
+            >
+              <Rocket className="w-4 h-4 text-sky-300" />
+              <span>Step-by-Step Creation Journey</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/15 font-mono">
+                10 Phases &bull; 129 Steps
+              </span>
+            </button>
+          </div>
+
+          {/* Active project summary pill */}
+          <div className="flex items-center justify-between sm:justify-end gap-3 px-3 py-1.5 rounded-xl bg-navy-950/80 border border-white/5 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-slate-400 hidden md:inline">Project:</span>
+              <span className="font-bold text-white truncate max-w-[140px] sm:max-w-[180px]">
+                {userReq.websiteName || "My First Website"}
+              </span>
+            </div>
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 font-mono font-medium border border-purple-500/30 shrink-0">
+              {userRec.overallComplexity}
+            </span>
+          </div>
+        </div>
+
+        {/* Tab 1: Requirements Wizard (Phase A) */}
+        {activeTab === "requirements" && (
+          <div className="space-y-6">
+            <div className="p-6 rounded-3xl bg-navy-900/90 border border-white/10 space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-xs font-semibold text-purple-300">
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Phase A &bull; Project Requirement Collection &amp; Architecture Planning</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
-                MY FIRST WEBSITE: COMPLETE STEP-BY-STEP JOURNEY
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Design Your Project Requirements &amp; Architecture
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
-                Follow every single action in the exact order an actual beginner performs it: Open GitHub &rarr; Create Repository &rarr; Empty Desktop Folder &rarr; Open Antigravity &rarr; Prompt ChatGPT &rarr; Generate Code &rarr; Run Localhost &rarr; Connect MongoDB Atlas &rarr; Gemini & Brevo APIs &rarr; Push to GitHub &rarr; Deploy to Render &rarr; Deploy to Vercel &rarr; Live Launch.
+                Answer these simple questions about your website idea. ZERO_WEB automatically calculates which technologies you actually need &mdash; eliminating unnecessary databases, backends, and complex APIs if your website doesn&apos;t require them.
               </p>
             </div>
 
-            {/* Overall Progress Widget */}
-            <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/10 flex items-center gap-5 shrink-0">
-              <div className="text-right">
-                <div className="text-[11px] uppercase tracking-wider text-slate-400 font-mono">
-                  Journey Progress
+            <RequirementsWizard onSaved={handleRequirementsSaved} />
+          </div>
+        )}
+
+        {/* Tab 2: Chronological Creation Journey */}
+        {activeTab === "journey" && (
+          <div className="space-y-8">
+            {/* Header: Dedicated Banner */}
+            <div className="p-6 sm:p-8 rounded-3xl bg-navy-900/90 border border-white/10 space-y-4 shadow-2xl relative overflow-hidden">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-electric-blue/15 border border-electric-blue/30 text-xs font-semibold text-electric-blue">
+                    <Rocket className="w-3.5 h-3.5" />
+                    <span>The Real Chronological Order &bull; 10 Phases &bull; Click-by-Click</span>
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
+                    MY FIRST WEBSITE: COMPLETE STEP-BY-STEP JOURNEY
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-300 max-w-3xl leading-relaxed">
+                    Personalized for <strong className="text-white">&quot;{userReq.websiteName}&quot;</strong> ({userRec.overallComplexity}). Follow every single action in the exact order an actual beginner performs it: Open GitHub &rarr; Create Repository &rarr; Empty Desktop Folder &rarr; Open Antigravity &rarr; Prompt ChatGPT &rarr; Generate Code &rarr; Run Localhost &rarr; Deploy to Vercel &amp; Render.
+                  </p>
                 </div>
-                <div className="text-2xl font-bold font-mono text-electric-blue">
-                  {overallPercent}%
-                </div>
-                <div className="text-[11px] text-slate-400 font-mono">
-                  {completedCount} of {CHRONOLOGICAL_STEPS.length} steps complete
+
+                {/* Overall Progress Widget */}
+                <div className="p-4 rounded-2xl bg-navy-950/80 border border-white/10 flex items-center gap-5 shrink-0">
+                  <div className="text-right">
+                    <div className="text-[11px] uppercase tracking-wider text-slate-400 font-mono">
+                      Journey Progress
+                    </div>
+                    <div className="text-2xl font-bold font-mono text-electric-blue">
+                      {overallPercent}%
+                    </div>
+                    <div className="text-[11px] text-slate-400 font-mono">
+                      {completedCount} of {CHRONOLOGICAL_STEPS.length} steps complete
+                    </div>
+                  </div>
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-electric-blue to-electric-indigo flex items-center justify-center text-white font-mono font-extrabold text-base shadow-lg shadow-blue-500/20">
+                    {currentStepNumber}
+                  </div>
                 </div>
               </div>
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-electric-blue to-electric-indigo flex items-center justify-center text-white font-mono font-extrabold text-base shadow-lg shadow-blue-500/20">
-                {currentStepNumber}
+
+              {/* Overall Progress Bar */}
+              <div className="w-full bg-navy-950 rounded-full h-2.5 overflow-hidden border border-white/5">
+                <div
+                  className="bg-gradient-to-r from-electric-blue via-electric-violet to-emerald-400 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${overallPercent}%` }}
+                />
               </div>
             </div>
-          </div>
 
-          {/* Overall Progress Bar */}
-          <div className="w-full bg-navy-950 rounded-full h-2.5 overflow-hidden border border-white/5">
-            <div
-              className="bg-gradient-to-r from-electric-blue via-electric-violet to-emerald-400 h-2.5 rounded-full transition-all duration-300"
-              style={{ width: `${overallPercent}%` }}
-            />
-          </div>
-        </div>
+            {/* Optional Phase Alert Banner if current step belongs to a skipped phase */}
+            {isCurrentPhaseSkipped && (
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3.5">
+                <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <div className="text-xs font-bold text-amber-300">
+                    Optional Phase for &quot;{userReq.websiteName}&quot; ({currentPhase.title})
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {currentPhaseSkippedReason || "Your selected project features do not require this service. You may skip this entire phase or read through it to learn how it works."}
+                  </p>
+                </div>
+              </div>
+            )}
 
-        {/* Phase Navigator Pill Selector */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
-          {PHASES_LIST.map((phase) => {
-            const isCurrentPhase = phase.phaseNumber === currentStep.phaseNumber;
-            const IconComponent = ICONS_MAP[phase.iconName] || Rocket;
-            const stepsInPhase = CHRONOLOGICAL_STEPS.filter((s) => s.phaseNumber === phase.phaseNumber);
-            const isPhaseDone = stepsInPhase.every((s) => completedSteps[s.stepNumber]);
+            {/* Phase Navigator Pill Selector */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+              {PHASES_LIST.map((phase) => {
+                const isCurrentPhase = phase.phaseNumber === currentStep.phaseNumber;
+                const IconComponent = ICONS_MAP[phase.iconName] || Rocket;
+                const stepsInPhase = CHRONOLOGICAL_STEPS.filter((s) => s.phaseNumber === phase.phaseNumber);
+                const isPhaseDone = stepsInPhase.every((s) => completedSteps[s.stepNumber]);
+                const isPhaseSkipped = userRec.skippedPhases.some((sp) => sp.phaseNumber === phase.phaseNumber);
 
-            return (
-              <button
-                key={phase.phaseNumber}
-                onClick={() => goToStep(stepsInPhase[0].stepNumber)}
-                className={cn(
-                  "flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
-                  isCurrentPhase
-                    ? "bg-electric-blue text-white border-electric-blue shadow-lg shadow-blue-500/20"
-                    : isPhaseDone
-                    ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-                    : "bg-navy-900/80 text-slate-300 hover:text-white hover:bg-navy-850 border-white/5"
-                )}
-              >
-                <IconComponent className="w-3.5 h-3.5" />
-                <span>Phase {phase.phaseNumber}: {phase.title}</span>
-                {isPhaseDone ? (
-                  <Check className="w-3 h-3 text-emerald-400" />
-                ) : (
-                  <span className="text-[10px] opacity-75 font-mono">
-                    ({phase.stepRange})
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+                return (
+                  <button
+                    key={phase.phaseNumber}
+                    onClick={() => goToStep(stepsInPhase[0].stepNumber)}
+                    className={cn(
+                      "flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border shrink-0",
+                      isCurrentPhase
+                        ? "bg-electric-blue text-white border-electric-blue shadow-lg shadow-blue-500/20"
+                        : isPhaseDone
+                        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                        : isPhaseSkipped
+                        ? "bg-navy-900/40 text-slate-400 border-dashed border-amber-500/30 hover:text-white"
+                        : "bg-navy-900/80 text-slate-300 hover:text-white hover:bg-navy-850 border-white/5"
+                    )}
+                  >
+                    <IconComponent className="w-3.5 h-3.5" />
+                    <span>Phase {phase.phaseNumber}: {phase.title}</span>
+                    {isPhaseSkipped && (
+                      <span className="text-[10px] text-amber-400/90 font-mono">
+                        (Optional)
+                      </span>
+                    )}
+                    {isPhaseDone ? (
+                      <Check className="w-3 h-3 text-emerald-400" />
+                    ) : (
+                      <span className="text-[10px] opacity-75 font-mono">
+                        ({phase.stepRange})
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
 
-        {/* Main Step Cockpit */}
+            {/* Main Step Cockpit */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Column: Steps List in Current Phase */}
@@ -556,6 +697,8 @@ export default function JourneyPage() {
           </div>
 
         </div>
+      </div>
+    )}
 
       </div>
     </div>

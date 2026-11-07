@@ -13,17 +13,35 @@ import {
   FileDown, 
   CheckCircle2, 
   Clock, 
-  ExternalLink 
+  ExternalLink,
+  Sliders,
+  Check,
+  ShieldCheck,
+  Database,
+  Cpu
 } from "lucide-react";
 import { JOURNEY_STAGES } from "@/lib/journey-data";
 import { StageStatus } from "@/lib/types";
+import { 
+  UserRequirements, 
+  ArchitectureRecommendation, 
+  DEFAULT_REQUIREMENTS, 
+  loadUserRequirements, 
+  analyzeRequirements 
+} from "@/lib/user-requirements";
 
 export default function DashboardPage() {
   const [statuses, setStatuses] = useState<Record<number, StageStatus>>({});
-  const [projectName, setProjectName] = useState("My First Website");
-  const [projectIdea, setProjectIdea] = useState("A custom candle e-commerce shop with interactive scent mixing.");
+  const [userReq, setUserReq] = useState<UserRequirements>(DEFAULT_REQUIREMENTS);
+  const [userRec, setUserRec] = useState<ArchitectureRecommendation>(
+    analyzeRequirements(DEFAULT_REQUIREMENTS)
+  );
 
   useEffect(() => {
+    const loadedReq = loadUserRequirements();
+    setUserReq(loadedReq);
+    setUserRec(analyzeRequirements(loadedReq));
+
     const saved = localStorage.getItem("zero_web_stage_statuses");
     if (saved) {
       try { setStatuses(JSON.parse(saved)); } catch (e) {}
@@ -34,33 +52,38 @@ export default function DashboardPage() {
   const progressPercent = Math.round((completedCount / JOURNEY_STAGES.length) * 100);
 
   const exportDossier = () => {
-    const markdown = `# Project Dossier: ${projectName}
-**Idea:** ${projectIdea}
+    const markdown = `# Project Dossier: ${userReq.websiteName}
+**Idea:** ${userReq.idea}
+**Purpose:** ${userReq.purpose}
+**Target Audience:** ${userReq.targetAudience}
+**Main Pages:** ${userReq.mainPages}
+**Required Features:** ${userReq.requiredFeatures}
+**Architecture Complexity:** ${userRec.overallComplexity}
 **Generated:** ${new Date().toLocaleDateString()}
 **Status:** ${progressPercent}% Complete (${completedCount}/${JOURNEY_STAGES.length} Stages)
 
-## Technology Stack
-- **Frontend:** React 18 + Vite (Tailwind CSS) on Vercel
-- **Backend:** Python FastAPI on Render
-- **Database:** MongoDB Atlas M0 Cloud
-- **Security:** Bcrypt Password Hashing + Brevo Email OTP
-- **AI Integration:** Google Gemini API via Backend Proxy
+## Tailored Technology Stack
+- **Frontend:** ${userRec.frontendStack} (${userRec.frontendReason})
+- **Backend:** ${userRec.backendNeeded ? userRec.backendStack : "None Needed - Static / Client-Side Architecture"}
+- **Database:** ${userRec.databaseNeeded ? userRec.databaseStack : "None Needed - No persistent database required"}
+- **Authentication:** ${userRec.authNeeded ? "Bcrypt Password Hashing" : "Not Required"}
+- **Email OTP:** ${userRec.otpNeeded ? "Brevo Transactional Email Service" : "Not Required"}
+- **AI Integration:** ${userRec.aiNeeded ? "Google Gemini API via Backend Proxy" : "Not Required"}
+- **Frontend Hosting:** ${userRec.hostingFrontend}
+- **Backend Hosting:** ${userRec.hostingBackend}
+
+## Skipped Phases for This Project
+${userRec.skippedPhases.length > 0 ? userRec.skippedPhases.map((s) => `- Phase ${s.phaseNumber}: ${s.phaseTitle} (${s.reason})`).join("\n") : "None - Full-Stack Architecture applies"}
 
 ## Stage Milestones
 ${JOURNEY_STAGES.map((s) => `- [${statuses[s.id] === "completed" ? "x" : " "}] Stage ${s.stageNumber}: ${s.title} (${statuses[s.id] || "not-started"})`).join("\n")}
-
-## Required Environment Variables (Never commit values!)
-- \`MONGODB_URI\`
-- \`JWT_SECRET_KEY\`
-- \`BREVO_API_KEY\`
-- \`GEMINI_API_KEY\`
 `;
 
     const blob = new Blob([markdown], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${projectName.toLowerCase().replace(/\s+/g, "-")}-dossier.md`;
+    a.download = `${userReq.websiteName.toLowerCase().replace(/\s+/g, "-")}-dossier.md`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -80,11 +103,11 @@ ${JOURNEY_STAGES.map((s) => `- [${statuses[s.id] === "completed" ? "x" : " "}] S
               Welcome back to ZERO_WEB
             </h1>
             <p className="text-xs sm:text-sm text-slate-300">
-              Track your projects, resume stages, and manage your deployment credentials safely.
+              Track your personalized website architecture, manage development stages, and export your project dossier.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={exportDossier}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-navy-850 hover:bg-navy-800 border border-white/10 text-slate-200 text-xs font-semibold transition-colors"
@@ -92,6 +115,14 @@ ${JOURNEY_STAGES.map((s) => `- [${statuses[s.id] === "completed" ? "x" : " "}] S
               <FileDown className="w-4 h-4 text-electric-blue" />
               <span>Export Dossier (.md)</span>
             </button>
+
+            <Link
+              href="/journey?tab=requirements"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 border border-purple-500/40 text-purple-200 text-xs font-bold transition-all"
+            >
+              <Sliders className="w-4 h-4 text-purple-300" />
+              <span>Edit Requirements</span>
+            </Link>
 
             <Link
               href="/journey"
@@ -107,11 +138,16 @@ ${JOURNEY_STAGES.map((s) => `- [${statuses[s.id] === "completed" ? "x" : " "}] S
         <div className="rounded-2xl bg-navy-900/80 border border-white/10 p-6 sm:p-8 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
             <div>
-              <span className="text-[10px] font-mono uppercase text-electric-blue font-bold tracking-wider">
-                Active Project
-              </span>
-              <h2 className="text-xl font-bold text-white mt-0.5">{projectName}</h2>
-              <p className="text-xs text-slate-400 mt-1">{projectIdea}</p>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono uppercase text-electric-blue font-bold tracking-wider">
+                  Active Project
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300">
+                  {userRec.overallComplexity}
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold text-white mt-1">{userReq.websiteName}</h2>
+              <p className="text-xs text-slate-300 mt-1 max-w-2xl">{userReq.idea}</p>
             </div>
 
             <div className="text-right sm:border-l border-white/10 sm:pl-6">
@@ -121,6 +157,44 @@ ${JOURNEY_STAGES.map((s) => `- [${statuses[s.id] === "completed" ? "x" : " "}] S
               </div>
               <div className="text-[11px] text-slate-400 font-mono">
                 {completedCount} of {JOURNEY_STAGES.length} stages complete
+              </div>
+            </div>
+          </div>
+
+          {/* Architecture Summary Callout */}
+          <div className="p-4 rounded-xl bg-navy-950/70 border border-white/5 space-y-3">
+            <div className="text-xs font-mono font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <span>Personalized Architecture Analysis</span>
+              <Link href="/journey?tab=requirements" className="text-electric-blue hover:underline text-[11px] font-sans lowercase">
+                change in wizard &rarr;
+              </Link>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              {userRec.architectureSummary}
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+              <div className="p-2.5 rounded-lg bg-navy-900/90 border border-white/5 space-y-0.5">
+                <span className="text-[10px] font-mono text-slate-500 uppercase">Frontend</span>
+                <div className="text-xs font-bold text-emerald-400">Vite + React (Vercel)</div>
+              </div>
+              <div className="p-2.5 rounded-lg bg-navy-900/90 border border-white/5 space-y-0.5">
+                <span className="text-[10px] font-mono text-slate-500 uppercase">Backend</span>
+                <div className="text-xs font-bold text-white">
+                  {userRec.backendNeeded ? "Python FastAPI (Render)" : "Not Required (Static)"}
+                </div>
+              </div>
+              <div className="p-2.5 rounded-lg bg-navy-900/90 border border-white/5 space-y-0.5">
+                <span className="text-[10px] font-mono text-slate-500 uppercase">Database</span>
+                <div className="text-xs font-bold text-white">
+                  {userRec.databaseNeeded ? "MongoDB Atlas (Cloud)" : "Not Required"}
+                </div>
+              </div>
+              <div className="p-2.5 rounded-lg bg-navy-900/90 border border-white/5 space-y-0.5">
+                <span className="text-[10px] font-mono text-slate-500 uppercase">AI &amp; Mail</span>
+                <div className="text-xs font-bold text-white">
+                  {userRec.aiNeeded ? "Gemini AI" : "None"} &bull; {userRec.otpNeeded ? "Brevo OTP" : "None"}
+                </div>
               </div>
             </div>
           </div>
@@ -136,6 +210,15 @@ ${JOURNEY_STAGES.map((s) => `- [${statuses[s.id] === "completed" ? "x" : " "}] S
           {/* Quick Actions Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
             <Link
+              href="/journey?tab=requirements"
+              className="p-4 rounded-xl bg-navy-950/70 border border-purple-500/20 hover:border-purple-500/40 transition-all text-left group"
+            >
+              <Sliders className="w-5 h-5 text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
+              <div className="text-xs font-bold text-white">Requirements Wizard</div>
+              <div className="text-[11px] text-slate-400">Customize 17 parameters</div>
+            </Link>
+
+            <Link
               href="/commands"
               className="p-4 rounded-xl bg-navy-950/70 border border-white/5 hover:border-white/15 transition-all text-left group"
             >
@@ -148,7 +231,7 @@ ${JOURNEY_STAGES.map((s) => `- [${statuses[s.id] === "completed" ? "x" : " "}] S
               href="/prompts"
               className="p-4 rounded-xl bg-navy-950/70 border border-white/5 hover:border-white/15 transition-all text-left group"
             >
-              <Sparkles className="w-5 h-5 text-purple-400 mb-2 group-hover:scale-110 transition-transform" />
+              <Sparkles className="w-5 h-5 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
               <div className="text-xs font-bold text-white">AI Prompt Vault</div>
               <div className="text-[11px] text-slate-400">Prompts for AGY & ChatGPT</div>
             </Link>
@@ -157,18 +240,9 @@ ${JOURNEY_STAGES.map((s) => `- [${statuses[s.id] === "completed" ? "x" : " "}] S
               href="/troubleshooting"
               className="p-4 rounded-xl bg-navy-950/70 border border-white/5 hover:border-white/15 transition-all text-left group"
             >
-              <Wrench className="w-5 h-5 text-amber-400 mb-2 group-hover:scale-110 transition-transform" />
+              <Wrench className="w-5 h-5 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
               <div className="text-xs font-bold text-white">Troubleshoot</div>
               <div className="text-[11px] text-slate-400">Fix beginner errors</div>
-            </Link>
-
-            <Link
-              href="/architecture"
-              className="p-4 rounded-xl bg-navy-950/70 border border-white/5 hover:border-white/15 transition-all text-left group"
-            >
-              <Layers className="w-5 h-5 text-emerald-400 mb-2 group-hover:scale-110 transition-transform" />
-              <div className="text-xs font-bold text-white">Architecture</div>
-              <div className="text-[11px] text-slate-400">Inspect system diagram</div>
             </Link>
           </div>
         </div>
