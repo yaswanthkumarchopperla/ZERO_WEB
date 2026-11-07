@@ -231,14 +231,22 @@ export function analyzeRequirements(req: UserRequirements): ArchitectureRecommen
 }
 
 export function saveUserRequirements(req: UserRequirements): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem("zero_web_user_requirements", JSON.stringify(req));
+  const storage = typeof window !== "undefined" && window.localStorage 
+    ? window.localStorage 
+    : (typeof localStorage !== "undefined" ? localStorage : null);
+
+  if (storage) {
+    storage.setItem("zero_web_user_requirements", JSON.stringify(req));
   }
 }
 
 export function loadUserRequirements(): UserRequirements {
-  if (typeof window !== "undefined") {
-    const saved = localStorage.getItem("zero_web_user_requirements");
+  const storage = typeof window !== "undefined" && window.localStorage 
+    ? window.localStorage 
+    : (typeof localStorage !== "undefined" ? localStorage : null);
+
+  if (storage) {
+    const saved = storage.getItem("zero_web_user_requirements");
     if (saved) {
       try {
         return { ...DEFAULT_REQUIREMENTS, ...JSON.parse(saved) };
@@ -249,3 +257,4 @@ export function loadUserRequirements(): UserRequirements {
   }
   return DEFAULT_REQUIREMENTS;
 }
+
