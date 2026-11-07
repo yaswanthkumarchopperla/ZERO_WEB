@@ -32,9 +32,9 @@ export function Hero() {
             {/* Pill Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-850/80 border border-electric-blue/30 text-xs font-medium text-electric-blue shadow-inner">
               <span className="flex h-2 w-2 rounded-full bg-electric-blue animate-ping" />
-              <span>Zero Prior Coding Required</span>
+              <span>Real Chronological Process</span>
               <span className="text-slate-500">•</span>
-              <span className="text-slate-300">Live Website in 17 Stages</span>
+              <span className="text-slate-300">10 Phases &bull; Click-by-Click</span>
             </div>
 
             {/* Main Headline */}
@@ -44,22 +44,22 @@ export function Hero() {
 
             {/* Tagline / Subtitle */}
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              Your idea. Your first website. Your journey to the internet. We guide non-programmers through every click, command, prompt, and cloud setting—from your first blank folder to a deployed website on Vercel and Render.
+              Open GitHub &rarr; Create Repository &rarr; Empty Desktop Folder &rarr; Open Antigravity &rarr; Prompt ChatGPT &rarr; Generate Code &rarr; Run Localhost &rarr; Connect MongoDB &rarr; Deploy to Render & Vercel. We show you every click, command, prompt, and output in the exact order an actual beginner performs it.
             </p>
 
-            {/* Key Pedagogical Highlights */}
+            {/* Key Chronological Progression */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 text-left">
               <div className="p-3 rounded-xl bg-navy-850/60 border border-white/5">
-                <div className="text-electric-blue font-bold text-sm">Where to Click</div>
-                <div className="text-xs text-slate-400">Exact UI navigation</div>
+                <div className="text-electric-blue font-bold text-sm">Phase 1: Project</div>
+                <div className="text-xs text-slate-400">GitHub &rarr; Antigravity &rarr; ChatGPT</div>
               </div>
               <div className="p-3 rounded-xl bg-navy-850/60 border border-white/5">
-                <div className="text-electric-violet font-bold text-sm">What to Type</div>
-                <div className="text-xs text-slate-400">Copyable terminal cmds</div>
+                <div className="text-electric-violet font-bold text-sm">Phase 2-5: Build</div>
+                <div className="text-xs text-slate-400">Localhost, MongoDB & APIs</div>
               </div>
               <div className="p-3 rounded-xl bg-navy-850/60 border border-white/5 col-span-2 sm:col-span-1">
-                <div className="text-emerald-400 font-bold text-sm">How to Fix Errors</div>
-                <div className="text-xs text-slate-400">5-step diagnosis fixes</div>
+                <div className="text-emerald-400 font-bold text-sm">Phase 6-10: Launch</div>
+                <div className="text-xs text-slate-400">Render, Vercel & Live Verify</div>
               </div>
             </div>
 
@@ -70,24 +70,24 @@ export function Hero() {
                 className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-electric-blue via-blue-600 to-electric-indigo text-white font-semibold text-sm shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 <Rocket className="w-4 h-4" />
-                <span>Start Your Journey</span>
+                <span>Start Step 1: Open GitHub</span>
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
 
               <Link
-                href="/architecture"
+                href="/commands"
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-navy-850/90 hover:bg-navy-800 border border-white/10 text-slate-200 font-semibold text-sm hover:border-white/20 transition-all"
               >
-                <Layers className="w-4 h-4 text-electric-blue" />
-                <span>Explore Architecture</span>
+                <Terminal className="w-4 h-4 text-electric-blue" />
+                <span>Command Library</span>
               </Link>
             </div>
 
-            {/* Social Proof / Security Badges */}
+            {/* Trust Badges */}
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-5 pt-2 text-xs text-slate-400">
               <span className="flex items-center gap-1.5 text-slate-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>100% Free Hosting Tiers</span>
+                <span>Exact Click-by-Click Sequence</span>
               </span>
               <span className="flex items-center gap-1.5 text-slate-300">
                 <ShieldCheck className="w-4 h-4 text-electric-blue" />
@@ -95,7 +95,7 @@ export function Hero() {
               </span>
               <span className="flex items-center gap-1.5 text-slate-300">
                 <Cpu className="w-4 h-4 text-purple-400" />
-                <span>Google Antigravity Powered</span>
+                <span>Google Antigravity Focused</span>
               </span>
             </div>
           </div>
@@ -112,12 +112,12 @@ export function Hero() {
                   <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
                   <span className="ml-2 text-xs font-mono text-slate-400 flex items-center gap-1">
                     <Sparkles className="w-3 h-3 text-electric-blue" />
-                    <span>Google Antigravity — Live Agent</span>
+                    <span>My First Website &bull; Real Sequence</span>
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>ONLINE</span>
+                  <span>PHASE 1 ACTIVE</span>
                 </div>
               </div>
 
@@ -132,7 +132,7 @@ export function Hero() {
                   }`}
                 >
                   <Cpu className="w-3.5 h-3.5" />
-                  <span>Agent Task Log</span>
+                  <span>Step 21: Antigravity</span>
                 </button>
 
                 <button
@@ -144,7 +144,7 @@ export function Hero() {
                   }`}
                 >
                   <Terminal className="w-3.5 h-3.5 text-amber-400" />
-                  <span>FastAPI (:8000)</span>
+                  <span>Step 31: FastAPI (:8000)</span>
                 </button>
 
                 <button
@@ -156,7 +156,7 @@ export function Hero() {
                   }`}
                 >
                   <Play className="w-3.5 h-3.5 text-sky-400" />
-                  <span>Vite (:5173)</span>
+                  <span>Step 33: Vite (:5173)</span>
                 </button>
               </div>
 
@@ -165,32 +165,28 @@ export function Hero() {
                 {activeTab === "antigravity" && (
                   <div className="space-y-3">
                     <div className="text-slate-400">
-                      <span className="text-electric-blue font-bold">[STAGE 04 &rarr; 14]</span> Full-Stack Autonomous Build
+                      <span className="text-electric-blue font-bold">[CHRONOLOGICAL WORKFLOW]</span> Real Beginner Sequence
                     </div>
                     <div className="p-2.5 rounded-lg bg-navy-950/70 border border-white/5 space-y-1 text-slate-300">
                       <div className="text-emerald-400 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Frontend: React + Vite + Tailwind initialized</span>
+                        <span>Step 1-7: GitHub repository created & HTTPS URL copied</span>
                       </div>
                       <div className="text-emerald-400 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Backend: FastAPI with CORS & Motor MongoDB driver</span>
+                        <span>Step 8-15: Empty folder opened in Google Antigravity</span>
                       </div>
                       <div className="text-emerald-400 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Auth: Bcrypt hashing + Brevo Email OTP verified</span>
+                        <span>Step 16-20: ChatGPT prompt generated & copied</span>
                       </div>
                       <div className="text-emerald-400 flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Deploy: Render Web Service & Vercel Edge connected</span>
+                        <span>Step 21-25: Antigravity scaffolds frontend/ & backend/</span>
                       </div>
                     </div>
                     <div className="text-slate-400 text-[11px]">
-                      $ git push -u origin main
-                      <br />
-                      <span className="text-purple-300">&rarr; Vercel Build: 200 OK (https://my-site.vercel.app)</span>
-                      <br />
-                      <span className="text-emerald-300">&rarr; Render Service: Live (https://api.onrender.com)</span>
+                      &rarr; Ready to proceed to Phase 2: Localhost testing
                     </div>
                   </div>
                 )}
@@ -200,12 +196,12 @@ export function Hero() {
                     <div className="text-slate-500">$ uvicorn app.main:app --reload --port 8000</div>
                     <div className="text-sky-300">INFO: Will watch for changes in: ['/backend']</div>
                     <div className="text-emerald-400">INFO: Application startup complete.</div>
-                    <div className="text-emerald-400">INFO: Connected to MongoDB Atlas cluster0.xxxx.mongodb.net</div>
+                    <div className="text-emerald-400">INFO: Connected to MongoDB Atlas cluster0</div>
                     <div className="text-purple-300">INFO: Swagger Docs live at http://127.0.0.1:8000/docs</div>
                     <div className="text-slate-400 text-[11px] pt-2">
-                      GET /api/health 200 OK in 1.4ms
+                      GET /api/health 200 OK
                       <br />
-                      POST /api/auth/register 201 Created (OTP sent via Brevo)
+                      POST /api/auth/register 201 Created (Brevo OTP sent)
                     </div>
                   </div>
                 )}
@@ -213,14 +209,12 @@ export function Hero() {
                 {activeTab === "frontend" && (
                   <div className="space-y-2 text-slate-300">
                     <div className="text-slate-500">$ npm run dev</div>
-                    <div className="text-sky-400 font-bold">VITE v5.4.11 ready in 280 ms</div>
+                    <div className="text-sky-400 font-bold">VITE ready in 280 ms</div>
                     <div className="pt-1">
                       <span className="text-slate-400">&bull; Local: </span>
                       <span className="text-emerald-400 underline">http://localhost:5173/</span>
                     </div>
                     <div className="pt-2 text-slate-400 text-[11px]">
-                      [vite] hmr update /src/App.tsx
-                      <br />
                       [vite] connected to backend at http://localhost:8000
                     </div>
                   </div>
@@ -231,10 +225,10 @@ export function Hero() {
               <div className="px-4 py-2.5 bg-navy-950/80 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  <span>No secrets exposed in client bundle</span>
+                  <span>Resume anywhere in the 10 phases</span>
                 </div>
                 <Link href="/journey" className="text-electric-blue hover:underline flex items-center gap-1">
-                  <span>Explore Stage 1</span>
+                  <span>Open Step 1</span>
                   <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -247,4 +241,3 @@ export function Hero() {
     </section>
   );
 }
-

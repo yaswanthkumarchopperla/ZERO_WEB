@@ -22,7 +22,7 @@ import { useAppMode } from "@/lib/mode-context";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { name: "Journey", href: "/journey", icon: Rocket, badge: "17 Stages" },
+  { name: "Step-by-Step Journey", href: "/journey", icon: Rocket, badge: "10 Phases" },
   { name: "Commands", href: "/commands", icon: Terminal },
   { name: "AI Prompts", href: "/prompts", icon: Sparkles },
   { name: "Troubleshoot", href: "/troubleshooting", icon: Wrench },

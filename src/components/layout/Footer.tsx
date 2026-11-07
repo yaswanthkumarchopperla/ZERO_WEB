@@ -47,51 +47,51 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Stages */}
+          {/* Quick Phases */}
           <div>
             <h4 className="text-xs font-mono font-semibold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
               <Rocket className="w-3.5 h-3.5 text-electric-blue" />
-              <span>Core Journey</span>
+              <span>10-Phase Journey</span>
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/journey#stage-1" className="hover:text-electric-blue transition-colors">
-                  Stage 1: Idea to Plan
+                <Link href="/journey" className="hover:text-electric-blue transition-colors">
+                  Phase 1: Create Project (Steps 1-25)
                 </Link>
               </li>
               <li>
-                <Link href="/journey#stage-4" className="hover:text-electric-blue transition-colors">
-                  Stage 4: ChatGPT & Antigravity
+                <Link href="/journey" className="hover:text-electric-blue transition-colors">
+                  Phase 2: Run Localhost (Steps 26-40)
                 </Link>
               </li>
               <li>
-                <Link href="/journey#stage-5" className="hover:text-electric-blue transition-colors">
-                  Stage 5: React & Vite Frontend
+                <Link href="/journey" className="hover:text-electric-blue transition-colors">
+                  Phase 3: MongoDB Atlas (Steps 41-54)
                 </Link>
               </li>
               <li>
-                <Link href="/journey#stage-6" className="hover:text-electric-blue transition-colors">
-                  Stage 6: FastAPI Backend
+                <Link href="/journey" className="hover:text-electric-blue transition-colors">
+                  Phase 4: Gemini & Brevo (Steps 55-66)
                 </Link>
               </li>
               <li>
-                <Link href="/journey#stage-7" className="hover:text-electric-blue transition-colors">
-                  Stage 7: MongoDB Atlas Cloud
+                <Link href="/journey" className="hover:text-electric-blue transition-colors">
+                  Phase 5: Connect Stack (Steps 67-78)
                 </Link>
               </li>
               <li>
-                <Link href="/journey#stage-9" className="hover:text-electric-blue transition-colors">
-                  Stage 9: Brevo Email OTP & Auth
+                <Link href="/journey" className="hover:text-electric-blue transition-colors">
+                  Phase 6: Push to GitHub (Steps 79-89)
                 </Link>
               </li>
               <li>
-                <Link href="/journey#stage-13" className="hover:text-electric-blue transition-colors">
-                  Stage 13: Render Backend Hosting
+                <Link href="/journey" className="hover:text-electric-blue transition-colors">
+                  Phase 7: Deploy Render (Steps 90-100)
                 </Link>
               </li>
               <li>
-                <Link href="/journey#stage-14" className="hover:text-electric-blue transition-colors">
-                  Stage 14: Vercel Frontend Hosting
+                <Link href="/journey" className="hover:text-electric-blue transition-colors">
+                  Phase 9: Deploy Vercel (Steps 109-117)
                 </Link>
               </li>
             </ul>
