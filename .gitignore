@@ -1,3 +1,19 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing & Coverage
+/coverage
+/.nyc_output
+
+# Next.js Build Outputs
+.next
+/.next/
+out/
+/dist
+/build
+
 # Logs
 logs
 *.log
@@ -7,36 +23,33 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-.pnp
-.pnp.js
-
-# Testing
-coverage
-.nyc_output
-
-# Next.js
-.next/
-out/
-
-# Production
-build
-dist
-
-# Misc
-.DS_Store
-*.pem
-
-# Local env files
-.env*.local
+# Environment Variables (CRITICAL: Never commit secrets!)
 .env
-.env.production
-.env.development
+.env.*
+.env*.local
+!.env.example
 
-# Vercel
+# Security & Certificates
+*.pem
+*.key
+*.crt
+*.cert
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# IDE & Editor Settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Vercel Deployment Cache
 .vercel
 
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
-
