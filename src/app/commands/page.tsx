@@ -1,162 +1,47 @@
 "use client";
 
 import React, { useState } from "react";
-import { Terminal, Search, Copy, Check, Filter } from "lucide-react";
+import { 
+  Terminal, 
+  Search, 
+  Copy, 
+  Check, 
+  ChevronDown, 
+  ChevronUp, 
+  HelpCircle, 
+  ArrowRight, 
+  AlertTriangle, 
+  CheckCircle2, 
+  MapPin, 
+  Clock, 
+  Lightbulb, 
+  Layers,
+  ChevronRight
+} from "lucide-react";
+import { COMMANDS_DATA, DetailedCommand } from "@/lib/commands-data";
 import { copyToClipboard, cn } from "@/lib/utils";
 
-interface CommandItem {
-  id: string;
-  command: string;
-  category: "env" | "frontend" | "backend" | "git" | "database" | "deployment";
-  os: "all" | "windows" | "mac";
-  whereToExecute: string;
-  description: string;
-  expectedOutput: string;
-  tips?: string;
-}
-
-const ALL_COMMANDS: CommandItem[] = [
-  {
-    id: "c1",
-    command: "node -v",
-    category: "env",
-    os: "all",
-    whereToExecute: "Terminal / Command Prompt",
-    description: "Verifies that Node.js runtime is installed and in your system PATH.",
-    expectedOutput: "v20.x.x or v22.x.x"
-  },
-  {
-    id: "c2",
-    command: "python --version",
-    category: "env",
-    os: "windows",
-    whereToExecute: "Command Prompt / PowerShell",
-    description: "Verifies Python 3 is installed. Make sure 'Add python.exe to PATH' was checked.",
-    expectedOutput: "Python 3.11.x or Python 3.12.x"
-  },
-  {
-    id: "c3",
-    command: "git --version",
-    category: "git",
-    os: "all",
-    whereToExecute: "Terminal",
-    description: "Verifies Git CLI is installed for tracking project changes and pushing to GitHub.",
-    expectedOutput: "git version 2.x.x"
-  },
-  {
-    id: "c4",
-    command: "mkdir frontend backend",
-    category: "env",
-    os: "all",
-    whereToExecute: "Root project folder",
-    description: "Creates the two isolated directories for client UI and server API.",
-    expectedOutput: "Creates /frontend and /backend folders."
-  },
-  {
-    id: "c5",
-    command: "python -m venv venv",
-    category: "backend",
-    os: "all",
-    whereToExecute: "Terminal inside /backend folder",
-    description: "Generates an isolated Python virtual environment inside backend/venv.",
-    expectedOutput: "venv directory created with isolated python binaries."
-  },
-  {
-    id: "c6",
-    command: "venv\\Scripts\\activate",
-    category: "backend",
-    os: "windows",
-    whereToExecute: "Terminal inside /backend folder",
-    description: "Activates the virtual environment in Windows Command Prompt or PowerShell.",
-    expectedOutput: "(venv) prefix appears at the start of your terminal line."
-  },
-  {
-    id: "c7",
-    command: "npm create vite@latest . -- --template react",
-    category: "frontend",
-    os: "all",
-    whereToExecute: "Terminal inside /frontend folder",
-    description: "Scaffolds a clean React project powered by Vite in the current folder.",
-    expectedOutput: "Scaffolding project in ./... Done."
-  },
-  {
-    id: "c8",
-    command: "npm install",
-    category: "frontend",
-    os: "all",
-    whereToExecute: "Terminal inside /frontend folder",
-    description: "Downloads and installs all declared dependencies from package.json into node_modules.",
-    expectedOutput: "added X packages in Xs"
-  },
-  {
-    id: "c9",
-    command: "npm run dev",
-    category: "frontend",
-    os: "all",
-    whereToExecute: "Terminal inside /frontend folder",
-    description: "Starts the Vite local development hot-reload server.",
-    expectedOutput: "VITE ready in 250ms -> Local: http://localhost:5173/"
-  },
-  {
-    id: "c10",
-    command: "pip install fastapi uvicorn pydantic python-dotenv motor bcrypt pyjwt",
-    category: "backend",
-    os: "all",
-    whereToExecute: "Terminal inside /backend (with venv active)",
-    description: "Installs complete FastAPI web framework, async MongoDB driver, and bcrypt auth libraries.",
-    expectedOutput: "Successfully installed fastapi uvicorn..."
-  },
-  {
-    id: "c11",
-    command: "uvicorn app.main:app --reload --port 8000",
-    category: "backend",
-    os: "all",
-    whereToExecute: "Terminal inside /backend (with venv active)",
-    description: "Runs the FastAPI backend API server with auto-reload on code save.",
-    expectedOutput: "Application startup complete. Uvicorn running on http://127.0.0.1:8000"
-  },
-  {
-    id: "c12",
-    command: "pip freeze > requirements.txt",
-    category: "backend",
-    os: "all",
-    whereToExecute: "Terminal inside /backend folder",
-    description: "Exports exact installed package versions for Render cloud to install automatically.",
-    expectedOutput: "requirements.txt created or updated."
-  },
-  {
-    id: "c13",
-    command: "git status",
-    category: "git",
-    os: "all",
-    whereToExecute: "Terminal in project root",
-    description: "CRITICAL: Displays staged and unstaged files. Always verify .env is NOT in this list!",
-    expectedOutput: "Lists modified files. If .env appears, do NOT commit—update .gitignore first!"
-  },
-  {
-    id: "c14",
-    command: "git add . && git commit -m 'Initial fullstack release'",
-    category: "git",
-    os: "all",
-    whereToExecute: "Terminal in project root",
-    description: "Stages all project files and creates a permanent version snapshot.",
-    expectedOutput: "[main (root-commit) xxxxxxx] Initial fullstack release"
-  },
-  {
-    id: "c15",
-    command: "git branch -M main && git push -u origin main",
-    category: "git",
-    os: "all",
-    whereToExecute: "Terminal in project root",
-    description: "Pushes your local commit history to your remote GitHub repository on the main branch.",
-    expectedOutput: "Branch 'main' set up to track remote branch 'main' from 'origin'."
-  }
+const CATEGORIES = [
+  { id: "all", label: "All Commands" },
+  { id: "env", label: "Environment & Tools" },
+  { id: "frontend", label: "Frontend & React" },
+  { id: "backend", label: "Backend & FastAPI" },
+  { id: "git", label: "Git & GitHub" },
+  { id: "deployment", label: "Cloud Deployment" },
+  { id: "api", label: "APIs & AI" },
+  { id: "auth", label: "Auth & Brevo OTP" },
+  { id: "testing", label: "Testing & Debugging" },
 ];
 
 export default function CommandsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCat, setSelectedCat] = useState<string>("all");
+  const [selectedCat, setSelectedCat] = useState("all");
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({
+    "cmd-node-v": true,
+    "cmd-python-version": true,
+    "cmd-git-version": true
+  });
 
   const handleCopy = async (cmd: string, id: string) => {
     const ok = await copyToClipboard(cmd);
@@ -166,11 +51,34 @@ export default function CommandsPage() {
     }
   };
 
-  const filtered = ALL_COMMANDS.filter((c) => {
-    const matchesSearch = 
-      c.command.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.whereToExecute.toLowerCase().includes(searchTerm.toLowerCase());
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const expandAll = () => {
+    const allExpanded: Record<string, boolean> = {};
+    COMMANDS_DATA.forEach((cmd) => {
+      allExpanded[cmd.id] = true;
+    });
+    setExpandedIds(allExpanded);
+  };
+
+  const collapseAll = () => {
+    setExpandedIds({});
+  };
+
+  const filtered = COMMANDS_DATA.filter((c) => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch =
+      c.command.toLowerCase().includes(term) ||
+      c.whatItDoes.toLowerCase().includes(term) ||
+      c.whyWeUseIt.toLowerCase().includes(term) ||
+      c.whereToRun.toLowerCase().includes(term) ||
+      c.ifErrorOccurs.toLowerCase().includes(term) ||
+      c.categoryLabel.toLowerCase().includes(term);
     const matchesCat = selectedCat === "all" || c.category === selectedCat;
     return matchesSearch && matchesCat;
   });
@@ -189,105 +97,252 @@ export default function CommandsPage() {
             Developer Command Library
           </h1>
           <p className="text-base text-slate-300 leading-relaxed">
-            Never guess what to type into your terminal. Every command specifies the exact folder to run it in, the operating system, and the expected output to verify success.
+            Never guess what to type into your terminal. Every command below contains a comprehensive 9-section beginner guide explaining its exact execution location, purpose, real-world rationale, step-by-step usage, example outputs, troubleshooting fixes, and next steps.
           </p>
         </div>
 
-        {/* Search & Category Filter */}
-        <div className="p-4 rounded-2xl bg-navy-900/90 border border-white/10 space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        {/* Search, Filter & Bulk Expand Bar */}
+        <div className="p-4 sm:p-6 rounded-2xl bg-navy-900/90 border border-white/10 space-y-4 shadow-xl">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             {/* Search Input */}
-            <div className="relative w-full sm:max-w-md">
+            <div className="relative w-full lg:max-w-md">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search commands, tools, or expected outputs..."
-                className="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-navy-950 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-electric-blue font-mono"
+                placeholder="Search commands, error fixes, or keywords (e.g. node, git, venv, uvicorn)..."
+                className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-navy-950 border border-white/10 text-white placeholder:text-slate-500 focus:outline-none focus:border-electric-blue font-mono"
               />
             </div>
 
-            {/* Category Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
-              {[
-                { id: "all", label: "All" },
-                { id: "env", label: "Environment" },
-                { id: "frontend", label: "Frontend" },
-                { id: "backend", label: "Backend" },
-                { id: "git", label: "Git & GitHub" },
-              ].map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCat(cat.id)}
-                  className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-medium transition-colors",
-                    selectedCat === cat.id
-                      ? "bg-electric-blue text-white font-semibold"
-                      : "bg-white/5 text-slate-300 hover:bg-white/10"
-                  )}
-                >
-                  {cat.label}
-                </button>
-              ))}
+            {/* Expand / Collapse Controls */}
+            <div className="flex items-center gap-2 w-full lg:w-auto justify-end text-xs">
+              <button
+                onClick={expandAll}
+                className="px-3 py-1.5 rounded-lg bg-navy-850 hover:bg-navy-800 border border-white/10 text-slate-300 hover:text-white transition-colors"
+              >
+                Expand All Guides
+              </button>
+              <button
+                onClick={collapseAll}
+                className="px-3 py-1.5 rounded-lg bg-navy-850 hover:bg-navy-800 border border-white/10 text-slate-300 hover:text-white transition-colors"
+              >
+                Collapse All
+              </button>
+              <span className="text-slate-500 hidden sm:inline">|</span>
+              <span className="text-slate-400 font-mono text-[11px] hidden sm:inline">
+                {filtered.length} of {COMMANDS_DATA.length} commands
+              </span>
             </div>
+          </div>
+
+          {/* Category Filter Pills */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-white/5">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCat(cat.id)}
+                className={cn(
+                  "px-3 py-1 rounded-lg text-xs font-medium transition-all",
+                  selectedCat === cat.id
+                    ? "bg-electric-blue text-white font-semibold shadow-md shadow-blue-500/25"
+                    : "bg-navy-950/80 text-slate-300 hover:text-white hover:bg-navy-800 border border-white/5"
+                )}
+              >
+                {cat.label}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Commands List */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {filtered.length === 0 ? (
-            <div className="p-12 text-center rounded-2xl bg-navy-900/60 border border-white/5 text-slate-400">
-              No commands matched your search. Try "git", "npm", or "uvicorn".
+            <div className="p-12 text-center rounded-2xl bg-navy-900/60 border border-white/5 text-slate-400 space-y-2">
+              <p className="text-sm">No commands matched your search criteria.</p>
+              <button
+                onClick={() => { setSearchTerm(""); setSelectedCat("all"); }}
+                className="text-xs text-electric-blue hover:underline"
+              >
+                Reset filters & search
+              </button>
             </div>
           ) : (
-            filtered.map((item) => (
-              <div
-                key={item.id}
-                className="rounded-2xl bg-navy-900/80 border border-white/10 hover:border-white/20 p-5 space-y-3 font-mono text-xs transition-colors"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-electric-blue/15 text-electric-blue border border-electric-blue/20">
-                      {item.category}
-                    </span>
-                    <span className="text-slate-400 text-[11px] font-sans">
-                      Run inside: <strong className="text-white font-mono">{item.whereToExecute}</strong>
-                    </span>
+            filtered.map((item) => {
+              const isExpanded = !!expandedIds[item.id];
+              return (
+                <div
+                  key={item.id}
+                  className="rounded-2xl bg-navy-900/80 border border-white/10 hover:border-white/20 transition-all duration-200 overflow-hidden shadow-lg"
+                >
+                  {/* Card Header & Compact View */}
+                  <div className="p-5 sm:p-6 space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase bg-electric-blue/15 text-electric-blue border border-electric-blue/30">
+                          {item.categoryLabel}
+                        </span>
+                        {item.os !== "all" && (
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-mono uppercase bg-white/5 text-amber-300 border border-white/10">
+                            {item.os === "windows" ? "Windows Only" : "macOS / Linux"}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Copy Command Button */}
+                      <button
+                        onClick={() => handleCopy(item.command, item.id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-navy-800 hover:bg-navy-750 text-slate-200 text-xs font-semibold border border-white/10 transition-colors"
+                        title="Copy command to clipboard"
+                      >
+                        {copiedId === item.id ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-400">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-slate-400" />
+                            <span>Copy Command</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Section 1: Command */}
+                    <div className="p-3.5 rounded-xl bg-black/70 border border-white/10 text-emerald-400 font-mono text-xs sm:text-sm overflow-x-auto select-all shadow-inner">
+                      <span className="text-slate-500 select-none">$ </span>
+                      {item.command}
+                    </div>
+
+                    {/* Short Summary & Quick Location */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-300">
+                      <p className="font-medium text-slate-200">
+                        {item.shortSummary}
+                      </p>
+                      <div className="flex items-center gap-1.5 text-slate-400 text-[11px] shrink-0">
+                        <MapPin className="w-3 h-3 text-electric-blue" />
+                        <span>Run in: <strong className="text-slate-200">{item.whereToRun}</strong></span>
+                      </div>
+                    </div>
+
+                    {/* Expand / Collapse Button */}
+                    <div className="pt-2">
+                      <button
+                        onClick={() => toggleExpand(item.id)}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-electric-blue hover:text-sky-300 transition-colors focus:outline-none"
+                      >
+                        <span>{isExpanded ? "Hide Detailed Guide" : "Show Full Beginner Guide (9 Sections)"}</span>
+                        {isExpanded ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
 
-                  <button
-                    onClick={() => handleCopy(item.command, item.id)}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-navy-800 hover:bg-navy-750 text-slate-200 text-xs transition-colors font-sans"
-                  >
-                    {copiedId === item.id ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-emerald-400" />
-                        <span className="text-emerald-400 font-semibold">Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Copy Command</span>
-                      </>
-                    )}
-                  </button>
-                </div>
+                  {/* Complete 9-Section Beginner Explanation (Expandable) */}
+                  {isExpanded && (
+                    <div className="px-5 sm:px-6 pb-6 pt-3 border-t border-white/10 bg-navy-950/60 space-y-5 text-xs text-slate-300">
+                      
+                      {/* Section 2: Where to Run */}
+                      <div className="p-3.5 rounded-xl bg-navy-900/90 border border-white/5 space-y-1">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-electric-blue flex items-center gap-1.5">
+                          <MapPin className="w-3.5 h-3.5" />
+                          <span>2. Where to Run</span>
+                        </div>
+                        <p className="text-slate-200 font-mono text-xs">
+                          {item.whereToRun}
+                        </p>
+                      </div>
 
-                <div className="p-3 rounded-xl bg-black/60 border border-white/5 text-emerald-400 text-xs overflow-x-auto select-all">
-                  $ {item.command}
-                </div>
+                      {/* Section 3: What This Command Does & Section 4: Why We Use It */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 rounded-xl bg-navy-900/70 border border-white/5 space-y-1.5">
+                          <div className="text-[11px] font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                            <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+                            <span>3. What This Command Does</span>
+                          </div>
+                          <p className="leading-relaxed text-slate-300">
+                            {item.whatItDoes}
+                          </p>
+                        </div>
 
-                <div className="text-slate-300 font-sans text-xs">
-                  {item.description}
-                </div>
+                        <div className="p-4 rounded-xl bg-navy-900/70 border border-white/5 space-y-1.5">
+                          <div className="text-[11px] font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+                            <Layers className="w-3.5 h-3.5 text-electric-violet" />
+                            <span>4. Why We Use It</span>
+                          </div>
+                          <p className="leading-relaxed text-slate-300">
+                            {item.whyWeUseIt}
+                          </p>
+                        </div>
+                      </div>
 
-                <div className="text-[11px] text-slate-400 pt-2 border-t border-white/5 font-sans">
-                  <span className="text-sky-400 font-semibold">Expected Output: </span>
-                  <span className="font-mono text-slate-300">{item.expectedOutput}</span>
+                      {/* Section 5: When to Use It */}
+                      <div className="p-3.5 rounded-xl bg-navy-900/70 border border-white/5 space-y-1">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>5. When to Use It</span>
+                        </div>
+                        <p className="text-slate-200 leading-relaxed">
+                          {item.whenToUseIt}
+                        </p>
+                      </div>
+
+                      {/* Section 6: How to Use It (Step-by-Step) */}
+                      <div className="p-4 rounded-xl bg-navy-900/90 border border-white/5 space-y-2.5">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>6. How to Use It (Step-by-Step)</span>
+                        </div>
+                        <ol className="space-y-1.5 list-decimal list-inside pl-1 text-slate-200 font-mono text-[11px]">
+                          {item.howToUseIt.map((step, idx) => (
+                            <li key={idx} className="leading-relaxed">
+                              <span className="font-sans text-slate-300">{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+
+                      {/* Section 7: Expected Output */}
+                      <div className="p-4 rounded-xl bg-black/60 border border-white/10 space-y-1.5">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                          <Terminal className="w-3.5 h-3.5" />
+                          <span>7. Expected Output (Example)</span>
+                        </div>
+                        <pre className="text-slate-300 font-mono text-[11px] whitespace-pre-wrap leading-relaxed select-all">
+                          {item.expectedOutput}
+                        </pre>
+                      </div>
+
+                      {/* Section 8: If an Error Occurs */}
+                      <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-1.5">
+                        <div className="text-[11px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                          <AlertTriangle className="w-3.5 h-3.5" />
+                          <span>8. If an Error Occurs</span>
+                        </div>
+                        <p className="text-slate-200 leading-relaxed">
+                          {item.ifErrorOccurs}
+                        </p>
+                      </div>
+
+                      {/* Section 9: Next Step */}
+                      <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center gap-2.5 text-slate-200">
+                        <ArrowRight className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <div>
+                          <strong className="text-emerald-300 text-[11px] uppercase tracking-wider mr-1">9. Next Step:</strong>
+                          <span>{item.nextStep}</span>
+                        </div>
+                      </div>
+
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
@@ -295,4 +350,3 @@ export default function CommandsPage() {
     </div>
   );
 }
-
